@@ -5,6 +5,7 @@ import { DashboardOnboarding } from "./DashboardOnboarding";
 import {
   AuditHealthCard,
   BacklinkPulseCard,
+  BingCard,
   GscCard,
 } from "@/client/features/dashboard/DashboardCards";
 import { Ga4Card } from "@/client/features/dashboard/Ga4Card";
@@ -89,6 +90,7 @@ export function DashboardPage({ projectId }: { projectId: string }) {
 
   const showBacklinks = activation.domain !== null;
   const gscConnected = activation.gsc.connected;
+  const bingConnected = activation.bing.connected;
   const ga4Connected = activation.ga4.connected;
 
   // Search Console always renders: connected shows the report, otherwise the
@@ -98,6 +100,11 @@ export function DashboardPage({ projectId }: { projectId: string }) {
       key: "gsc",
       hasData: gscConnected,
       node: <GscCard projectId={projectId} connected={gscConnected} />,
+    },
+    {
+      key: "bing",
+      hasData: bingConnected,
+      node: <BingCard projectId={projectId} connected={bingConnected} />,
     },
     ...(ga4Connected || !activation.ga4.cardDismissedAt
       ? [

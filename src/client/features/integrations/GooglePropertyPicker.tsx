@@ -70,6 +70,12 @@ function matchesProperty(item: PropertyItem, query: string): boolean {
   return `${item.name} ${item.detail ?? ""}`.toLowerCase().includes(needle);
 }
 
+/** Compare by identity, not reference: a refetch can hand back a fresh item
+ *  object for the same property, which `Object.is` would read as a change. */
+function sameProperty(a: PropertyItem, b: PropertyItem): boolean {
+  return a.accountId === b.accountId && a.propertyId === b.propertyId;
+}
+
 export function GooglePropertyPicker({
   provider,
   readOnly = false,
@@ -169,6 +175,7 @@ export function GooglePropertyPicker({
             items={groups}
             value={selected}
             itemToStringLabel={(item) => item.name}
+            isItemEqualToValue={sameProperty}
             filter={matchesProperty}
             autoHighlight
             onValueChange={(item) => {

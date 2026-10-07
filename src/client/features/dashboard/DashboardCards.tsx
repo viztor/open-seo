@@ -3,7 +3,9 @@ import { Button } from "@/client/components/ui/button";
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Check } from "lucide-react";
+import { BingConnectionCard } from "@/client/features/integrations/BingConnectionCard";
 import { GoogleConnectionCard } from "@/client/features/integrations/GoogleConnectionCard";
+import { getBingSummary } from "@/serverFunctions/bing";
 import { AUDIT_ISSUE_TYPES } from "@/shared/audit-issues";
 
 import {
@@ -100,6 +102,88 @@ export function GscCard({
           <StatTile
             label="Avg position"
             value={formatPosition(report.totals.position)}
+          />
+        </div>
+      )}
+    </CardShell>
+  );
+}
+
+export function BingCard({
+  projectId,
+  connected,
+}: {
+  projectId: string;
+  connected: boolean;
+}) {
+  const summaryQuery = useQuery({
+    queryKey: ["dashboardBingSummary", projectId],
+    queryFn: () => getBingSummary({ data: { projectId } }),
+    enabled: connected,
+  });
+  const summaryData = summaryQuery.data;
+
+  // Not connected (or a rejected key discovered by the report call): the
+  // connection card sells and runs the whole flow itself.
+  if (!connected || (summaryData && !summaryData.connected)) {
+    return (
+      <div id="connect-bing">
+        <BingConnectionCard projectId={projectId} />
+      </div>
+    );
+  }
+
+  const total = summaryData?.connected ? summaryData.summary : null;
+  const days =
+    summaryData?.connected && summaryData.coverage.days > 0
+      ? summaryData.coverage.days
+      : null;
+
+  return (
+    <CardShell
+      title="Bing search performance"
+      stamp={
+        days === null
+          ? "Bing Webmaster Tools"
+          : `Bing Webmaster Tools · ${days}-day window`
+      }
+      action={
+        <Link
+          to="/p/$projectId/search-performance"
+          params={{ projectId }}
+          search={{ source: "bing" }}
+          className={moreDetailsClass}
+        >
+          More details
+        </Link>
+      }
+    >
+      {summaryQuery.isError ? (
+        <p className="text-sm text-muted-foreground">
+          Couldn&rsquo;t load Bing data. Try again shortly.
+        </p>
+      ) : !summaryData ? (
+        <StatGridSkeleton />
+      ) : !total ? (
+        <p className="text-sm text-muted-foreground">
+          No Bing data yet — it can take a few days to appear after a property
+          is verified.
+        </p>
+      ) : (
+        <div className="grid grid-cols-2 gap-3">
+          <StatTile label="Clicks" value={formatCount(total.clicks)} />
+          <StatTile
+            label="Impressions"
+            value={formatCount(total.impressions)}
+          />
+          <StatTile label="CTR" value={formatCtr(total.ctr)} />
+          <StatTile
+            label="Avg position"
+            value={
+              total.position === undefined
+                ? "—"
+                : formatPosition(total.position)
+            }
           />
         </div>
       )}

@@ -1,0 +1,2 @@
+ALTER TABLE "bing_connections" ALTER COLUMN "credential_id" DROP NOT NULL;--> statement-breakpoint
+CREATE UNIQUE INDEX "account_bing_grant_owner_idx" ON "account" USING btree ("user_id","provider_id","account_id") WHERE "account"."provider_id" = 'bing-webmaster';

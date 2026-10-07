@@ -273,6 +273,8 @@ const dataEnv = {
   BETTER_AUTH_SECRET: optionalSecret("BETTER_AUTH_SECRET"),
   GOOGLE_CLIENT_ID: optionalVar("GOOGLE_CLIENT_ID"),
   GOOGLE_CLIENT_SECRET: optionalSecret("GOOGLE_CLIENT_SECRET"),
+  BING_CLIENT_ID: optionalVar("BING_CLIENT_ID"),
+  BING_CLIENT_SECRET: optionalSecret("BING_CLIENT_SECRET"),
   OPENROUTER_API_KEY: optionalSecret("OPENROUTER_API_KEY"),
   OPENROUTER_MODEL: optionalVar("OPENROUTER_MODEL"),
   CONTEXT_API_KEY: optionalSecret("CONTEXT_API_KEY"),
@@ -323,6 +325,13 @@ export default Alchemy.Stack(
     // zone must already be in this Cloudflare account; alchemy infers the zone
     // from the hostname. Ignored for the hosted prod stage.
     const customDomain = yield* optionalVar("CUSTOM_DOMAIN");
+
+    // Bing Webmaster throttles Cloudflare Workers' shared egress IPs (HTTP 400,
+    // ErrorCode 17 "ThrottleIP"). When this names the account's Cloudflare Mesh
+    // network ("cf1:network"), the app worker gets an EGRESS binding and routes
+    // Bing through it — that egress is a different IP Bing accepts. Unset means
+    // no binding and Bing falls back to the default egress.
+    const bingEgressNetworkId = yield* optionalVar("BING_EGRESS_NETWORK_ID");
 
     // Auth needs an absolute BETTER_AUTH_URL. Prod sets it explicitly;
     // previews always derive it from the deterministic worker name — a wrong
@@ -539,6 +548,23 @@ export default Alchemy.Stack(
       // is a lossless upsert, unlike deleting the data-bearing resources.)
       Alchemy.RemovalPolicy.retain(prod),
     );
+
+    // Alchemy has no first-class VPC Network binding, so attach the raw
+    // `vpc_network` binding the same way its own aspects (cache, telemetry) do.
+    if (bingEgressNetworkId) {
+      yield* Alchemy.push(
+        app.LogicalId,
+        app.bind("openseo.bing-egress", {
+          bindings: [
+            {
+              type: "vpc_network",
+              name: "EGRESS",
+              networkId: bingEgressNetworkId,
+            },
+          ],
+        }),
+      );
+    }
 
     return { url: app.url.as<string>() };
   }),

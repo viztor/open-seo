@@ -41,6 +41,32 @@ export async function isHostedServerAuthMode(): Promise<boolean> {
   return isHostedAuthMode(await getOptionalEnvValue("AUTH_MODE"));
 }
 
+/**
+ * A `fetch` that egresses through the deployment's Cloudflare Mesh / VPC
+ * network when one is bound, else the global fetch.
+ *
+ * Bing Webmaster throttles Cloudflare Workers' shared egress IPs (HTTP 400,
+ * ErrorCode 17 "ThrottleIP"), so the Bing client must not use the default
+ * egress. A Worker bound to the account's Mesh network egresses from a
+ * different IP Bing accepts; deploy/alchemy/alchemy.run.ts names that binding
+ * `EGRESS` (set BING_EGRESS_NETWORK_ID to attach it).
+ */
+export async function getEgressFetch(): Promise<typeof fetch> {
+  const env = await getWorkersEnv();
+  const binding: unknown = env ? Reflect.get(env, "EGRESS") : undefined;
+  if (isFetcher(binding)) {
+    const egress = binding;
+    return (input, init) => egress.fetch(input, init);
+  }
+  return fetch;
+}
+
+function isFetcher(value: unknown): value is { fetch: typeof fetch } {
+  if (typeof value !== "object" || value === null) return false;
+  const candidate: unknown = (value as { fetch?: unknown }).fetch;
+  return typeof candidate === "function";
+}
+
 async function getWorkersEnv(): Promise<Record<string, unknown> | null> {
   if (!workersEnvPromise) {
     workersEnvPromise = loadWorkersEnv();

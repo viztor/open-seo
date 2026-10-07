@@ -5,6 +5,7 @@ import { ActivationRepository } from "@/server/features/activation/repositories/
 import { AuditRepository } from "@/server/features/audit/repositories/AuditRepository";
 import { getIssueTypePageCountsForAudit } from "@/server/features/audit/repositories/auditSummaryQueries";
 import { BacklinkSnapshotRepository } from "@/server/features/dashboard/repositories/BacklinkSnapshotRepository";
+import { BingConnectionRepository } from "@/server/features/bing/repositories/BingConnectionRepository";
 import { Ga4ConnectionRepository } from "@/server/features/ga4/repositories/Ga4ConnectionRepository";
 import { GscConnectionRepository } from "@/server/features/gsc/repositories/GscConnectionRepository";
 import {
@@ -26,6 +27,7 @@ export type DashboardActivation = {
     cardDismissedAt: string | null;
   };
   gsc: { connected: boolean; siteUrl: string | null };
+  bing: { connected: boolean; siteUrl: string | null };
   mcp: {
     authorizedAt: string | null;
     firstToolCallAt: string | null;
@@ -79,6 +81,7 @@ async function getActivation(input: {
   const [
     ga4,
     gsc,
+    bing,
     orgActivation,
     projectActivation,
     projectCount,
@@ -88,6 +91,7 @@ async function getActivation(input: {
   ] = await Promise.all([
     Ga4ConnectionRepository.getByProjectId(input.projectId),
     GscConnectionRepository.getByProjectId(input.projectId),
+    BingConnectionRepository.getByProjectId(input.projectId),
     ActivationRepository.getOrganizationActivation(input.organizationId),
     ActivationRepository.getProjectActivation(input.projectId),
     ProjectRepository.countProjects(input.organizationId),
@@ -107,6 +111,7 @@ async function getActivation(input: {
       cardDismissedAt: projectActivation?.ga4CardDismissedAt ?? null,
     },
     gsc: { connected: gsc !== null, siteUrl: gsc?.siteUrl ?? null },
+    bing: { connected: bing !== null, siteUrl: bing?.siteUrl ?? null },
     mcp: {
       authorizedAt: orgActivation?.firstMcpAuthorizedAt ?? null,
       firstToolCallAt: orgActivation?.firstMcpToolCallAt ?? null,

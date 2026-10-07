@@ -1,8 +1,8 @@
 {
   "name": "openseo",
   "displayName": "OpenSEO",
-  "version": "1.0.10",
-  "description": "Research keywords and competitors, audit sites, track rankings, and use connected Search Console data from your AI assistant.",
+  "version": "1.0.12",
+  "description": "Research keywords and competitors, audit sites, track rankings, and use connected Search Console and Bing Webmaster data from your AI assistant.",
   "author": {
     "name": "OpenSEO",
     "url": "https://openseo.so"
@@ -19,6 +19,7 @@
     "site-audit",
     "backlinks",
     "search-console",
+    "bing-webmaster",
     "rank-tracking",
     "local-seo"
   ]
