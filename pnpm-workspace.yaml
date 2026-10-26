@@ -1,6 +1,39 @@
 minimumReleaseAge: 11520
 minimumReleaseAgeExclude:
   - "@every-app/*"
+  # TEMPORARY (remove after 2026-11-02): @cloudflare/vite-plugin 1.65.0 was
+  # published 2026-10-23, inside the 8-day window. Needed for the deploy
+  # toolchain upgrade. Exempt only this exact version.
+  - "@cloudflare/vite-plugin@1.65.0"
+  # TEMPORARY (remove after 2026-11-02): wrangler 4.152.0 was published
+  # 2026-10-22, inside the 8-day window. Needed for the deploy toolchain
+  # upgrade. Exempt only this exact version.
+  - "wrangler@4.152.0"
+  # TEMPORARY (remove after 2026-11-02): effect 4.0.6 and @effect/platform-node
+  # 4.0.6 were published 2026-10-23, inside the 8-day window. Needed for the
+  # deploy toolchain upgrade. Exempt only these exact versions.
+  - "effect@4.0.6"
+  - "@effect/platform-node@4.0.6"
+  # TEMPORARY (remove after 2026-11-02): @effect/platform-node-shared 4.0.6
+  # is the shared runtime pinned by @effect/platform-node 4.0.6, published
+  # 2026-10-22, inside the 8-day window. Exempt only this exact version.
+  - "@effect/platform-node-shared@4.0.6"
+  # TEMPORARY (remove after 2026-11-02): workerd 1.20261019.1 is the runtime
+  # pinned by wrangler 4.152.0, published 2026-10-19, inside the 8-day
+  # window. Exempt only this exact version.
+  - "workerd@1.20261019.1"
+  # TEMPORARY (remove after 2026-11-02): the @cloudflare/workerd-* platform
+  # binaries pinned by workerd 1.20261019.1, published 2026-10-19, inside the
+  # 8-day window. Exempt only these exact versions.
+  - "@cloudflare/workerd-darwin-arm64@1.20261019.1"
+  - "@cloudflare/workerd-darwin-64@1.20261019.1"
+  - "@cloudflare/workerd-linux-64@1.20261019.1"
+  - "@cloudflare/workerd-linux-arm64@1.20261019.1"
+  - "@cloudflare/workerd-windows-64@1.20261019.1"
+  # TEMPORARY (remove after 2026-11-02): miniflare 5.20261019.2-beta is the
+  # prerelease pinned by @cloudflare/vite-plugin 1.65.0, published 2026-10-22,
+  # inside the 8-day window. Exempt only this exact version.
+  - "miniflare@5.20261019.2-beta"
   # TEMPORARY (remove after 2026-10-01): DOMPurify security fix, GHSA-p98j-92pf-mc4p.
   - "dompurify@3.4.16"
   # TEMPORARY (remove after 2026-10-08): latest TanStack Start release
@@ -35,9 +68,9 @@ minimumReleaseAgeExclude:
   - "brace-expansion"
   - "fast-uri"
   - "js-yaml"
-  # TEMPORARY (remove after 2026-10-20): the alchemy 2.0.0-beta.83 deploy
-  # toolchain (@alchemy.run/* 2.0.0-beta.83, @distilled.cloud/* 1.0.0-rc.15)
-  # was published 2026-10-12, inside the 8-day window. Exact-pinned in
+  # TEMPORARY (remove after 2026-11-02): the alchemy 2.0.0-beta.84 deploy
+  # toolchain (@alchemy.run/* 2.0.0-beta.84, @distilled.cloud/* 1.0.0-rc.17)
+  # was published 2026-10-22, inside the 8-day window. Exact-pinned in
   # package.json.
   - "alchemy"
   - "@alchemy.run/*"

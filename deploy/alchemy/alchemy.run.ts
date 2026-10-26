@@ -1,5 +1,5 @@
 import * as Alchemy from "alchemy";
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Cloudflare from "@alchemy.run/cloudflare";
 import * as CfWorkers from "@distilled.cloud/cloudflare/workers";
 import * as ZeroTrust from "@distilled.cloud/cloudflare/zero-trust";
 import * as Config from "effect/Config";
