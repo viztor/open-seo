@@ -3,16 +3,20 @@ minimumReleaseAgeExclude:
   - "@every-app/*"
   # The Every App CLI ships beside the SDK on the `next` dist-tag.
   - "everyapp"
-  # TEMPORARY (remove after 2026-10-17): the Every App build
+  # TEMPORARY (remove after 2026-11-07): the Every App build
   # (vite.everyapp.config.ts) uses the Cloudflare CLI and its Vite plugin's
-  # 2.0 beta, published 2026-10-09.
-  - "cf@1.0.0-beta.14"
+  # 2.0 beta; cf 1.0.0-beta.26 was published 2026-10-29, inside the 8-day
+  # window. Exempt only this exact version.
+  - "cf@1.0.0-beta.26"
   - "@cloudflare/vite-plugin@2.0.0-beta.sha-91c870c02"
-  - "miniflare@5.20261006.1-alpha"
-  - "@cloudflare/config@0.24.1"
-  - "@cloudflare/build-output-utils@0.9.0"
+  - "miniflare@5.20261023.3-beta"
+  # A second miniflare in the tree (pulled by a different parent) resolves to
+  # 5.20261023.1-beta, also inside the window.
+  - "miniflare@5.20261023.1-beta"
+  - "@cloudflare/config@0.29.0"
+  - "@cloudflare/build-output-utils@0.9.6"
   - "@cloudflare/codemods@0.4.2"
-  - "@cloudflare/runtime-types@0.1.9"
+  - "@cloudflare/runtime-types@0.1.19"
   # TEMPORARY (remove after 2026-10-01): DOMPurify security fix, GHSA-p98j-92pf-mc4p.
   - "dompurify@3.4.16"
   # TEMPORARY (remove after 2026-10-08): latest TanStack Start release
@@ -52,6 +56,16 @@ minimumReleaseAgeExclude:
   # the window. Exact-pinned in package.json.
   - "alchemy"
   - "@distilled.cloud/*"
+  # TEMPORARY (remove after 2026-11-07): effect 4.1.1 and its platform-node
+  # pair were published 2026-10-30, inside the 8-day window. Exact-pinned in
+  # package.json, so the exception names the version, not the package.
+  - "effect@4.1.1"
+  - "@effect/platform-node@4.1.1"
+  - "@effect/platform-node-shared@4.1.1"
+  # TEMPORARY (remove after 2026-11-07): wrangler 4.156.0 (2026-10-29) and
+  # @cloudflare/vite-plugin 1.66.0 (2026-10-28) are inside the 8-day window.
+  - "wrangler@4.156.0"
+  - "@cloudflare/vite-plugin@1.66.0"
 
 # Security floors for transitive dependencies with published advisories.
 # Overrides outside a parent's declared range are scoped and noted below. Ranges are
@@ -62,6 +76,9 @@ minimumReleaseAgeExclude:
 # To prune once a parent catches up: delete the line, run `pnpm install`, and
 # keep it deleted if `pnpm audit` stays clean.
 overrides:
+  # Was `pnpm.overrides` in package.json, which pnpm 12 no longer reads —
+  # moved here so the pin stays in force.
+  "zod@4": "4.6.7"
   # GHSA-4x5r-pxfx-6jf8 — waiting on @tanstack/devtools-vite
   "@babel/core": "^7.29.6"
   # September 2026 recursion/CPU DoS fixes plus earlier advisories — just-bash/shadcn
@@ -115,6 +132,13 @@ patchedDependencies:
 
 # Build scripts pnpm may run on install; it skips every other package's and
 # warns "Ignored build scripts". esbuild and workerd fetch their binaries.
+# pnpm 12 makes the skip an error, so the packages that stay off are recorded
+# explicitly: these four were already being skipped under pnpm 10 and
+# nothing in this tree needs them.
 allowBuilds:
   esbuild: true
   workerd: true
+  "@mongodb-js/zstd": false
+  core-js: false
+  core-js-pure: false
+  node-liblzma: false

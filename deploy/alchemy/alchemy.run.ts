@@ -138,13 +138,13 @@ const hyperdriveBinding = (hyperdriveId: string) => ({
 });
 
 const optionalVar = (name: string) =>
-  Config.string(name).pipe(
+  Config.String(name).pipe(
     Config.withDefault(""),
     Config.map((value) => value.trim()),
   );
 
 const optionalSecret = (name: string) =>
-  Config.redacted(name).pipe(Config.withDefault(Redacted.make("")));
+  Config.Redacted(name).pipe(Config.withDefault(Redacted.make("")));
 
 const accessScopeHint =
   " (if this is a permissions error, re-run `pnpm alchemy login --configure`, answer yes to “Customize OAuth scopes?”, and select access:write alongside the defaults)";
@@ -258,15 +258,15 @@ const resolveSelfHostAccess = (
     return { teamDomain, policyAud };
   });
 
-// Secrets/vars resolve from Config (`Config.redacted` → Cloudflare
-// `secret_text`, `Config.string` → plaintext var). Previews and self-host pass
+// Secrets/vars resolve from Config (`Config.Redacted` → Cloudflare
+// `secret_text`, `Config.String` → plaintext var). Previews and self-host pass
 // an `--env-file`, which the alchemy CLI loads into Config, NOT process.env;
 // the production workflow exports them as job/step env instead.
 const dataEnv = {
   // AUTH_MODE, DATABASE_PROVIDER, BETTER_AUTH_URL, TEAM_DOMAIN, POLICY_AUD,
   // and OPENSEO_OPERATOR_SECRET are stage-dependent and set in the stack body
   // below, which also replaces an unset BETTER_AUTH_SECRET in password mode.
-  DATAFORSEO_API_KEY: Config.redacted("DATAFORSEO_API_KEY"),
+  DATAFORSEO_API_KEY: Config.Redacted("DATAFORSEO_API_KEY"),
   BYPASS_EMAIL_VERIFICATION: optionalVar("BYPASS_EMAIL_VERIFICATION"),
   BETTER_AUTH_SECRET: optionalSecret("BETTER_AUTH_SECRET"),
   CRAWLER_ACCESS_SECRET: optionalSecret("CRAWLER_ACCESS_SECRET"),
@@ -320,11 +320,11 @@ export default Alchemy.Stack(
     // app's own default in src/lib/auth-mode.ts), never public hosted signup.
     // New self-host deployments get AUTH_MODE=password from deploy/.env.selfhost.example;
     // hosted/local_noauth must be set explicitly.
-    const authMode = yield* Config.string("AUTH_MODE").pipe(
+    const authMode = yield* Config.String("AUTH_MODE").pipe(
       Config.withDefault("cloudflare_access"),
     );
     const databaseProvider = yield* optionalVar("DATABASE_PROVIDER");
-    const hyperdriveId = prod ? yield* Config.string("HYPERDRIVE_ID") : "";
+    const hyperdriveId = prod ? yield* Config.String("HYPERDRIVE_ID") : "";
     if (prod && (authMode !== "hosted" || databaseProvider !== "postgres")) {
       return yield* Effect.die(
         new Error(
